@@ -8,7 +8,7 @@ import { Todo } from '../../models/todo.model';
 })
 export class TodoService {
   // Base URL of the API endpoint for Todos
-  private baseUrl = 'http://localhost:3000/todos';
+  private baseUrl = 'http://localhost:3000/api/todos';
 
   // Inject HttpClient to perform HTTP requests
   private http = inject(HttpClient);

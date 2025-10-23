@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class PersonService {
   // Base URL of the API endpoint for Person entities
-  private baseUrl = 'http://localhost:3000/persons';
+  private baseUrl = 'http://localhost:3000/api/persons';
 
   // Inject HttpClient to make HTTP requests
   private http = inject(HttpClient);
