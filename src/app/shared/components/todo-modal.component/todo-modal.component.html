@@ -1,0 +1,99 @@
+<div class="p-4 ">
+  <div class="flex justify-between items-center mb-4">
+    <h2 mat-dialog-title class="text-lg">
+      {{ data?.mode === 'create' ? 'Ajouter une tache' : 'Modifier la tache' }}
+    </h2>
+
+    <button mat-icon-button (click)="close()" aria-label="Fermer">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" class="text-black w-full">
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label><span class="text-black">Titre</span></mat-label>
+      <input matInput formControlName="title" class="w-full border border-black" />
+      @if (formControls['title'].touched && formControls['title'].errors){
+      <mat-error>
+        {{ formControls['title'].hasError('required') ? 'Le titre est requis' : '' }}
+        {{ formControls['title'].hasError('trimMin') ? 'Au moins 3 caractères' : '' }}
+      </mat-error>
+      }
+    </mat-form-field>
+
+    <div class="grid grid-cols-4 gap-4">
+      <mat-form-field appearance="fill">
+        <mat-label>Personne</mat-label>
+        <input
+          type="text"
+          matInput
+          [matAutocomplete]="auto"
+          formControlName="personId"
+          class="w-full border border-black"
+        />
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayPerson.bind(this)">
+          @for(p of persons; track $index){
+          <mat-option [value]="p.id">{{ p.name }} — {{ p.email }}</mat-option>
+          }
+        </mat-autocomplete>
+
+        @if (formControls['personId'].touched && formControls['personId'].errors){
+        <mat-error>
+          {{ formControls['title'].hasError('required') ? 'La personne est requise' : '' }}
+        </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Date de début</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="startDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+
+        @if (formControls['startDate'].touched && formControls['startDate'].errors){
+        <mat-error>
+          {{ formControls['startDate'].hasError('required') ? 'La date de début est requise' : '' }}
+        </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Priorité</mat-label>
+        <mat-select formControlName="priority">
+          @for(pr of priorities; track $index){
+          <mat-option [value]="pr">{{ pr }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Labels</mat-label>
+        <mat-select #labelsSelect formControlName="labels" multiple>
+          @for(l of labels; track $index){
+          <mat-option [value]="l">{{ l }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label><span class="text-black">Description</span></mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        class="w-full border border-black"
+      ></textarea>
+      @if (formControls['description'].touched && formControls['description'].errors){
+      <mat-error>
+        {{ formControls['description'].hasError('required') ? 'Le titre est requis' : '' }}
+        {{ formControls['description'].hasError('trimMin') ? 'Au moins 3 caractères' : '' }}
+      </mat-error>
+      }
+    </mat-form-field>
+
+    <div class="flex flex-row justify-end gap-4" >
+      <button mat-button (click)="close()">Annuler</button>
+      <button mat-raised-button color="primary" (click)="save()">Sauvegarder</button>
+    </div>
+  </form>
+</div>
