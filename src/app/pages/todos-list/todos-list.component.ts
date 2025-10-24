@@ -62,7 +62,7 @@ export class TodosListComponent implements OnInit {
   }
 
   onAdd(){
-    const dialogRef = this.dialog.open(TodoModalComponent, { width: '100%', maxWidth: '800px',  data: { mode: 'create' } ,  panelClass: 'p-4' });
+    const dialogRef = this.dialog.open(TodoModalComponent, { width: '100%', maxWidth: '900px',  data: { mode: 'create' } ,  panelClass: 'p-4' });
     dialogRef.afterClosed().subscribe(result => { if (result) this.loadTodos(); });
   }
 
