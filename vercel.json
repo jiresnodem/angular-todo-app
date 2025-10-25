@@ -4,7 +4,7 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist/todo-app" }
+      "config": { "distDir": "dist/browser" }
     },
     {
       "src": "api/**/*.js",
@@ -12,7 +12,7 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/api/(.*)", "dest": "/api/todos.js" },
+    { "src": "/(.*)", "dest": "/dist/browser/index.html" }
   ]
 }
