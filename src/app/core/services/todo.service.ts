@@ -1,14 +1,15 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Todo } from '../../models/todo.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TodoService {
   // Base URL of the API endpoint for Todos
-  private baseUrl = 'http://localhost:3000/api/todos';
+  private baseUrl = `${environment.apiUrl}/todos`;
 
   // Inject HttpClient to perform HTTP requests
   private http = inject(HttpClient);
@@ -21,12 +22,12 @@ export class TodoService {
    * @param filters - Optional filters (priority, label, personId)
    * @returns An Observable containing an array of Todo objects
    */
-  fetchPaginatedTodos(page = 1, limit = 10, filters: any = {}): Observable<Todo[]> {
+  fetchPaginatedTodos(page = 1, limit = 10, filters: any = {}): Observable<HttpResponse<Todo[]>> {
     let params = new HttpParams().set('_page', page).set('_limit', limit);
     if (filters.priority) params = params.set('priority', filters.priority);
     if (filters.label) params = params.set('labelsLike', filters.label);
     if (filters.personId) params = params.set('personId', filters.personId);
-    return this.http.get<Todo[]>(this.baseUrl, { params, observe: 'body' });
+    return this.http.get<Todo[]>(this.baseUrl, { params, observe: 'response' });
   }
 
   /**

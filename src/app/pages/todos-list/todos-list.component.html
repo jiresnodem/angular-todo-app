@@ -1,4 +1,115 @@
-<button type="button" (click)="onAdd()">Add Todo</button>
-<button type="button" (click)="onAddPerson()">Add Person</button>
+<div class="grid grid-cols-[280px_1fr] gap-3 min-h-[calc(100vh-90px)]">
+  <div class="bg-white p-4 rounded-2xl shadow-2xl h-full flex flex-col justify-between">
+    <button
+      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full text-center"
+      (click)="onAdd()"
+    >
+      Add new task
+    </button>
 
-<p>todos-list.component works!</p>
+    <div class="grid grid-rows-[1fr_1fr] h-[93%]">
+      <ul>
+        <li>HTML</li>
+      </ul>
+
+      <div>
+        <h1 class="font-medium text-2xl mb-4">Labels</h1>
+        <ul>
+          @for (item of labels; track $index) {
+          <li class="text-medium my-2 text-lg cursor-pointer" (click)="filterLabel = item">
+            {{ item }}
+          </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="bg-white p-4 rounded-2xl shadow-2xl h-full">
+    <div class="w-full">
+      <div class="flex justify-between items-center mb-4"></div>
+
+      <!-- Filtres -->
+      <div class="flex justify-between gap-4 mb-2">
+        <input
+          type="text"
+          placeholder="Filtrer par titre..."
+          class="border rounded px-2 py-1"
+          [(ngModel)]="filterText"
+        />
+        <div class="flex flex-row gap-2">
+          <select [(ngModel)]="filterPriority" class="border rounded px-2 py-1">
+            <option value="">Toutes les priorités</option>
+            @for (item of priorities; track $index) {
+            <option [value]="item">{{ item }}</option>
+            }
+          </select>
+
+          <select [(ngModel)]="filterLabel" class="border rounded px-2 py-1">
+            <option value="">Tous les labels</option>
+            @for (item of labels; track $index) {
+            <option [value]="item">{{ item }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <table class="w-full table-auto border border-gray-200">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border px-2 py-1">Titre</th>
+            <th class="border px-2 py-1">Priorité</th>
+            <th class="border px-2 py-1">Personne</th>
+            <th class="border px-2 py-1">Start Date</th>
+            <th class="border px-2 py-1">End Date</th>
+            <th class="border px-2 py-1">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let todo of paginatedTodos" class="hover:bg-gray-50">
+            <td class="border px-2 py-1">{{ todo.title }}</td>
+            <td class="border px-2 py-1">{{ todo.priority }}</td>
+            <td class="border px-2 py-1">{{  personsMap.get(todo.personId) || '—' }}</td>
+            <td class="border px-2 py-1">{{ todo.startDate | date : 'shortDate' }}</td>
+            <td class="border px-2 py-1">
+              {{ todo.endDate ? (todo.endDate | date : 'shortDate') : '—' }}
+            </td>
+            <td class="border px-2 py-1 flex justify-end gap-2">
+              <button
+                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                (click)="onEdit(todo)"
+              >
+                Edit
+              </button>
+              <button
+                class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                (click)="onDelete(todo)"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="flex justify-end gap-2 mt-4">
+        <button
+          class="px-3 py-1 border rounded"
+          (click)="changePage(page - 1)"
+          [disabled]="page === 1"
+        >
+          Prev
+        </button>
+        <span class="px-3 py-1 border rounded">Page {{ page }} / {{ totalPages }}</span>
+        <button
+          class="px-3 py-1 border rounded"
+          (click)="changePage(page + 1)"
+          [disabled]="page === totalPages"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

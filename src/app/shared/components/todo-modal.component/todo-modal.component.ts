@@ -13,9 +13,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import {MatIconModule} from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
-import {MatCardModule} from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-todo-modal.component',
@@ -30,7 +30,7 @@ import {MatCardModule} from '@angular/material/card';
     MatNativeDateModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
   ],
   templateUrl: './todo-modal.component.html',
   styleUrl: './todo-modal.component.css',
@@ -70,9 +70,35 @@ export class TodoModalComponent {
         map((val) => this._filterPersons(val))
       );
     });
+
+    if (this.data?.mode === 'edit' && this.data.todo) {
+      const t = this.data.todo;
+      this.form.patchValue({
+        title: t.title,
+        personId: t.personId,
+        startDate: t.startDate,
+        endDate: t.endDate,
+        priority: t.priority,
+        labels: t.labels,
+        description: t.description,
+        completed: t.completed,
+      });
+      if (t.completed) {
+        this.form.get('endDate')!.disable();
+      }
+    }
+
+    this.form.get('completed')!.valueChanges.subscribe((v) => {
+      const endCtrl = this.form.get('endDate')!;
+      if (v) {
+        endCtrl.setValue(new Date().toISOString());
+        endCtrl.disable();
+      } else {
+        endCtrl.enable();
+        endCtrl.setValue(null);
+      }
+    });
   }
-
-
 
   get formControls() {
     return this.form.controls;

@@ -1,38 +1,60 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { Person } from '../../models/person.model';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { PersonService } from '../../core/services/person.service';
 import { TodoService } from '../../core/services/todo.service';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { TodoModalComponent } from '../../shared/components/todo-modal.component/todo-modal.component';
-import { Todo } from '../../models/todo.model';
+import { Label, Priority, Todo } from '../../models/todo.model';
+import { MatButtonModule } from '@angular/material/button';
 import { PersonModalComponent } from '../../shared/components/person-modal.component/person-modal.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-todos-list.component',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule, MatButtonModule],
   templateUrl: './todos-list.component.html',
   styleUrl: './todos-list.component.css',
 })
 export class TodosListComponent implements OnInit {
-// source = new LocalDataSource();
-  // settings = {
-  //   actions: { add: false, edit: false, delete: false }, // lecture seule
-  //   columns: {
-  //     title: { title: 'Titre' },
-  //     personName: { title: 'Personne' },
-  //     startDate: { title: 'Début', valuePrepareFunction: (date) => new Date(date).toLocaleString() },
-  //     endDate: { title: 'Fin', valuePrepareFunction: (date) => date ? new Date(date).toLocaleString() : '-' },
-  //     priority: { title: 'Priorité' },
-  //     labels: { title: 'Labels', valuePrepareFunction: (labels) => labels.join(', ') },
-  //     completed: { title: 'Terminé', type: 'html', valuePrepareFunction: v => v ? '✅' : '❌' }
-  //   }
-  // };
+  priorities: Priority[] = ['Facile', 'Moyen', 'Difficile'];
+  labels: Label[] = ['HTML', 'CSS', 'NODE JS', 'JQUERY'];
   todos: Todo[] = [];
-  personsMap = new Map<number,string>();
-  // pagination state
-  page = 1; limit = 10; total = 0;
+  personsMap = new Map<number, string>();
+
+  // Filtre
+  filterText = '';
+  filterPriority: Priority | '' = '';
+  filterLabel: Label | '' = '';
+
+  // Pagination
+  page = 1;
+  pageSize = 2;
+  totalItems = 0;
+  get totalPages() {
+    return Math.ceil(this.totalItems / this.pageSize);
+  }
+
+  get filteredTodos(): Todo[] {
+    return this.todos
+      .filter((t) => t.title.toLowerCase().includes(this.filterText.toLowerCase()))
+      .filter((t) => (this.filterPriority ? t.priority === this.filterPriority : true))
+      .filter((t) => (this.filterLabel ? t.labels.includes(this.filterLabel) : true));
+  }
+
+  get paginatedTodos(): Todo[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.filteredTodos.slice(start, start + this.pageSize);
+  }
+
+  changePage(newPage: number) {
+    if (newPage >= 1 && newPage <= Math.ceil(this.totalItems / this.pageSize)) {
+      this.page = newPage;
+         this.loadTodos();
+    }
+  }
 
   constructor(
     private todoService: TodoService,
@@ -40,46 +62,65 @@ export class TodosListComponent implements OnInit {
     private dialog: MatDialog
   ) {}
 
-  ngOnInit(){
+  ngOnInit() {
     this.loadPersons();
     this.loadTodos();
   }
 
-  loadPersons(){
-    this.personService.fetchAllPersons().subscribe(persons => {
-      persons.forEach(p => this.personsMap.set(p.id!, p.name));
+  loadPersons() {
+    this.personService.fetchAllPersons().subscribe((persons) => {
+      persons.forEach((p) => this.personsMap.set(p.id!, p.name));
     });
   }
 
-  loadTodos(){
-    this.todoService.fetchPaginatedTodos(this.page, this.limit).subscribe((res: any) => {
-      // if observe: 'response', use res.body and res.headers.get('x-total-count')
-      this.todos = res;
-      // map to table source with personName
-      const rows = this.todos.map(t => ({ ...t, personName: this.personsMap.get(t.personId) || '—' }));
-      // this.source.load(rows);
+  loadTodos() {
+    this.todoService.fetchPaginatedTodos(this.page, this.pageSize).subscribe((res: any) => {
+      console.log("%O", res.body);
+
+      this.todos = res.body || [];
+      this.totalItems = Number(res.headers.get('x-total-count') || 0);
     });
   }
 
-  onAdd(){
-    const dialogRef = this.dialog.open(TodoModalComponent, { width: '100%', maxWidth: '900px',  data: { mode: 'create' } ,  panelClass: 'p-4' });
-    dialogRef.afterClosed().subscribe(result => { if (result) this.loadTodos(); });
+  onAdd() {
+    const dialogRef = this.dialog.open(TodoModalComponent, {
+      width: '100%',
+      maxWidth: '900px',
+      data: { mode: 'create' },
+      panelClass: 'p-4',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) this.loadTodos();
+    });
   }
 
-  onAddPerson(){
-    const dialogRef = this.dialog.open(PersonModalComponent, { width: '100%', maxWidth: '800px',  data: { mode: 'create' } ,  panelClass: 'p-4' });
-    dialogRef.afterClosed().subscribe(result => { if (result) this.loadTodos(); });
+  onAddPerson() {
+    const dialogRef = this.dialog.open(PersonModalComponent, {
+      width: '100%',
+      maxWidth: '900px',
+      data: { mode: 'create' },
+      panelClass: 'p-4',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) this.loadTodos();
+    });
   }
 
-  onEdit(row: any){
-    const dialogRef = this.dialog.open(TodoModalComponent, { width: '1000px', data: { mode: 'edit', todo: row } });
-    dialogRef.afterClosed().subscribe(result => { if (result) this.loadTodos(); });
+  onEdit(row: any) {
+    const dialogRef = this.dialog.open(TodoModalComponent, {
+      width: '100%',
+      maxWidth: '900px',
+      panelClass: 'p-4',
+      data: { mode: 'edit', todo: row },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) this.loadTodos();
+    });
   }
 
-  onDelete(row: any){
+  onDelete(row: any) {
     if (confirm('Supprimer cette tâche ?')) {
       this.todoService.deleteTodo(row.id).subscribe(() => this.loadTodos());
     }
   }
-
 }

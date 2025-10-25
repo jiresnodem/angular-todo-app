@@ -1,0 +1,16 @@
+<header class="py-2 px-4">
+    <div class="mx-auto container flex flex-row justify-between items-center">
+        <h1 class="font-medium text-2xl">Todo App</h1>
+
+        <nav>
+            <ul class="flex flex-row gap-4">
+                <li class="font-medium"><a [routerLink]="['todos']">Todos</a></li>
+                <li class="font-medium"><a [routerLink]="['users']">Users</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main class="mx-auto container mt-4">
+    <router-outlet></router-outlet>
+</main>

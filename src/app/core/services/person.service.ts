@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Person } from '../../models/person.model';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PersonService {
   // Base URL of the API endpoint for Person entities
-  private baseUrl = 'http://localhost:3000/api/persons';
+  private baseUrl = `${environment.apiUrl}/persons`;
 
   // Inject HttpClient to make HTTP requests
   private http = inject(HttpClient);
