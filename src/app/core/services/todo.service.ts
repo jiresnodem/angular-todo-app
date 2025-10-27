@@ -2,7 +2,7 @@ import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Todo } from '../../models/todo.model';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,7 @@ export class TodoService {
   fetchPaginatedTodos(page = 1, limit = 10, filters: any = {}): Observable<HttpResponse<Todo[]>> {
     let params = new HttpParams().set('_page', page).set('_limit', limit);
     if (filters.priority) params = params.set('priority', filters.priority);
-    if (filters.label) params = params.set('labelsLike', filters.label);
+    if (filters.label) params = params.set('label', filters.label);
     if (filters.personId) params = params.set('personId', filters.personId);
     return this.http.get<Todo[]>(this.baseUrl, { params, observe: 'response' });
   }
